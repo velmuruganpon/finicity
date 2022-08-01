@@ -261,9 +261,28 @@ def delete_customer_by_id(
 
     response = delete(path, extra_header)
     if response.status_code == 204:
-        resp = response.json()
-        print(resp)
+        content_xs = [
+                token,
+                customer_id,
+                str(cur_time),
+                str(response.status_code),
+                str(response.content),
+                "SUCCESS"
+                ]
+        content = list_to_dq_str(content_xs)
+        write_log(file_name, content)
+
     else:
+        content_xs = [
+                token,
+                customer_id,
+                str(cur_time),
+                str(response.status_code),
+                str(response.content),
+                "FAILED"
+                ]
+        content = list_to_dq_str(content_xs)
+        write_log(file_name, content)
         raise Exception(f"get customer by id issue "
         f"{response.status_code}: {response.content}")
 
