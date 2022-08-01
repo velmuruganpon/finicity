@@ -53,6 +53,23 @@ def post(path:str,
     return response
 
 
+def post_v1(path:str,
+        params:  Optional[dict],
+        data: Optional[dict],
+        extra_headers: Optional[dict] = None,
+        ) -> Response:
+    url = base_url + path
+    headers = create_headers(extra_headers)
+    response = requests.post(
+            url,
+            headers=headers,
+            data=json.dumps(data),
+            params=params,
+            )
+    return response
+
+
+
 
 def get(path: str, 
         params: Optional[dict] = None, 
@@ -286,3 +303,72 @@ def delete_customer_by_id(
         raise Exception(f"get customer by id issue "
         f"{response.status_code}: {response.content}")
 
+
+def generate_url(path:str, token:str, customer_id, data: Optional[dict]=None):
+    path = path_map[path]
+    extra_header = { "Finicity-App-Token" : token }
+    file_name = f_log + generate_url_file
+    cur_time = datetime.datetime.now()
+
+    data1 = {"partnerId" : partner_id,
+             "customerId": customer_id
+            }
+
+    data = data1 if not data else data.update(data1)
+
+    response = post(path, data, extra_header)
+    print(response.json())
+    customer_id = data.get('customerId','')
+    if response.status_code == 200 or response.status_code == 201:
+        resp = response.json()
+        link = resp.get('link','')
+
+        content_xs = [
+                token,
+                customer_id,
+                str(cur_time),
+                str(response.status_code),
+                "",
+                "SUCCESS"
+                ]
+        content = list_to_dq_str(content_xs)
+
+        write_log(file_name, content)
+        return link
+    else:
+        content_xs = [
+                token,
+                customer_id,
+                str(cur_time),
+                str(response.status_code),
+                str(response.content),
+                "FAILED"
+                ]
+        content = list_to_dq_str(content_xs)
+        write_log(file_name, content)
+        raise Exception(f"generate_url issue "
+        f"{response.status_code}: {response.content}")
+
+
+
+def trnx_rprt(
+        path:str,
+        token,
+        customer_id, 
+        params: Optional[dict]=None, 
+        data: Optional[dict]=None):
+    path = path_map[path] + "/" + customer_id + "/transactions"
+    print(path)
+    extra_header = { "Finicity-App-Token" : token }
+    cur_time = datetime.datetime.now()
+    cur_time1 = cur_time.strftime("%Y%m%d_%H%M%S")
+    file_name = f_log + cur_time1 + "_" + trnx_rprt_file
+
+    response = post_v1(path, params, data, extra_header)
+    print(response.json())
+    if response.status_code == 200 or response.status_code == 201:
+        resp = response.json()
+        return resp
+    else:
+        raise Exception(f"transactionreport  issue "
+        f"{response.status_code}: {response.content}")

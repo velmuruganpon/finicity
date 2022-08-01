@@ -2,7 +2,7 @@
 
 # activate the python virtual environment
 
-if [ $# -ne 2 ] 
+if [ $# -lt 2 ] 
 then
 	echo "usage: finicity_engine.sh <action> <new-user-obj>"
 	echo "usage: ADD USER"
@@ -18,11 +18,17 @@ then
 	echo -e "\tsh  finicity_engine.sh \"GET-CUSTOMER-BY-ID\" \"6007416155\""
 	echo "usage: DELETE CUSTOMER BY ID"
         echo -e "\tsh  finicity_engine.sh \"DELETE-CUSTOMER-BY-ID\" \"6007416155\""
+	echo "usage: GENERATE URL"
+        echo -e "\tsh  finicity_engine.sh \"GENERATE-URL\" \"6007465953\""
 	exit 100
 fi
 
 action=$1
-obj=$2
+obj=$2  # body or param or customer_id
+obj1=$3 # body if obj is customer_id or any string object
+obj2=$4 # param if obj, obj1 is customerid|str and body
+obj3=$5 # token_YN
+
 
 source ~/slt/venv/slt-python3.7/bin/activate
 
@@ -89,6 +95,30 @@ then
         fi
 
         echo "$customer"
+elif [ "X${action}" == "XGENERATE-URL" ]
+then
+        echo "python3 finicity_engine.py \"generate_url\" -t \"${token}\" -id \"${obj}\" -b \"${obj1}\""
+        url=`python3 finicity_engine.py "generate_url" -t "${token}" -id "${obj}" -b "${obj1}"` 
+
+        if [ $? -ne 0 ]
+        then
+                echo "generate url failed"
+                exit 103
+        fi
+
+        echo "$url"
+elif [ "X${action}" == "XTRANSACTION-REPORT" ]
+then
+        echo "python3 finicity_engine.py \"trnx_rprt\"  -t \"${token}\" -id \"${obj}\" -b \"${obj1}\" -p \"${obj2}\""
+        report=`python3 finicity_engine.py "trnx_rprt" -t "${token}" -id "${obj}" -b "${obj1}" -p "${obj2}"`
+
+        if [ $? -ne 0 ]
+        then
+                echo "generate transactions report failed"
+                exit 103
+        fi
+
+        echo "$report"
 
 fi
 

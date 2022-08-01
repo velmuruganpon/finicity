@@ -62,6 +62,10 @@ def get_value(action):
         return get_customer_by_id(action, f_token, f_customer_id)
     elif action == "delete_customer_by_id":
         return delete_customer_by_id(action, f_token, f_customer_id)
+    elif action == "generate_url":
+        return generate_url(action, f_token, f_customer_id, f_body)
+    elif action == "trnx_rprt":
+        return trnx_rprt(action, f_token, f_customer_id, f_params, f_body)
 
 
 def main(args):
