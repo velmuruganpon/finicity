@@ -20,6 +20,8 @@ then
         echo -e "\tsh  finicity_engine.sh \"DELETE-CUSTOMER-BY-ID\" \"6007416155\""
 	echo "usage: GENERATE URL"
         echo -e "\tsh  finicity_engine.sh \"GENERATE-URL\" \"6007465953\""
+	echo "usage: TRANSACTION REPORT"
+        echo -e "\tsh  finicity_engine.sh \"TRANSACTION-REPORT\" \"6007465953\""
 	exit 100
 fi
 
