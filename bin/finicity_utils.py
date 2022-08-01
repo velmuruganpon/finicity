@@ -68,6 +68,17 @@ def get(path: str,
     return response
 
 
+def delete(path:str,
+        extra_headers: Optional[dict] = None,
+        ) -> Response:
+    url = base_url + path
+    headers = create_headers(extra_headers)
+    response = requests.delete(
+            url,
+            headers=headers,
+            )
+    return response
+
 
 def create_token(path:str) -> str:
     path = path_map[path]
@@ -235,3 +246,24 @@ def get_customer_by_id(
     else:
         raise Exception(f"get customer by id issue "
         f"{response.status_code}: {response.content}")
+
+
+def delete_customer_by_id(
+        path:str,
+        token:str,
+        customer_id:str
+        ):
+    path = path_map[path] + "/" + customer_id
+    extra_header = { "Finicity-App-Token" : token }
+    cur_time = datetime.datetime.now()
+    cur_time1 = cur_time.strftime("%Y%m%d_%H%M%S")
+    file_name = f_log + cur_time1 +"_"+  delete_customers_file
+
+    response = delete(path, extra_header)
+    if response.status_code == 204:
+        resp = response.json()
+        print(resp)
+    else:
+        raise Exception(f"get customer by id issue "
+        f"{response.status_code}: {response.content}")
+

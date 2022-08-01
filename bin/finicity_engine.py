@@ -60,6 +60,8 @@ def get_value(action):
         return get_customers(action, f_token, f_params)
     elif action == "get_customer_by_id":
         return get_customer_by_id(action, f_token, f_customer_id)
+    elif action == "delete_customer_by_id":
+        return delete_customer_by_id(action, f_token, f_customer_id)
 
 
 def main(args):

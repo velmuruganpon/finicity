@@ -16,6 +16,8 @@ then
 	echo -e "\tsh  finicity_engine.sh \"GET-CUSTOMERS\" \"{'username' : 'slt-user1'}\""
 	echo "usage: GET CUSTOMER BY ID"
 	echo -e "\tsh  finicity_engine.sh \"GET-CUSTOMER-BY-ID\" \"6007416155\""
+	echo "usage: DELETE CUSTOMER BY ID"
+        echo -e "\tsh  finicity_engine.sh \"DELETE-CUSTOMER-BY-ID\" \"6007416155\""
 	exit 100
 fi
 
@@ -74,6 +76,19 @@ then
                 exit 103
         fi
 
-        echo "$customer"	
+        echo "$customer"
+elif [ "X${action}" == "XDELETE-CUSTOMER-BY-ID" ]
+then
+        echo "python3 finicity_engine.py \"delete_customer_by_id\" -t \"${token}\" -id \"${obj}\""
+        customer=`python3 finicity_engine.py "delete_customer_by_id" -t "${token}" -id "${obj}"`
+
+        if [ $? -ne 0 ]
+        then
+                echo "delete customer failed"
+                exit 103
+        fi
+
+        echo "$customer"
+
 fi
 
