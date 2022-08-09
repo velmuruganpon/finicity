@@ -13,6 +13,9 @@ path_map = {
         'add_consumer' : 'decisioning/v1/customers',
         'generate_url' : 'connect/v2/generate',
         'trnx_rprt' : 'decisioning/v2/customers',
+        'customer_trnx_rprt' : 'decisioning/v3/customers',
+        'get_consumer_by_id' : 'decisioning/v1/customers',
+        'get_customer_transactions_all' : 'aggregation/v3/customers',
         }
 
 
@@ -25,4 +28,7 @@ get_customers_file = "get_customers.log"
 delete_customers_file = "delete_customers.log"
 add_consumer_file = "add_consumer.log"
 generate_url_file = "generate_url.log"
-trnx_rprt_file = "trnx_rpt.dat"
+trnx_rprt_file = "trnx_rpt.log"
+customer_trnx_rprt_file = "customer_trnx_rpt.dat"
+get_consumer_by_id_file = "get_consumer.log"
+get_customer_transactions_all_file = "trnx_rpt_all.log"

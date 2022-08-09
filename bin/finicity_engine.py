@@ -47,6 +47,13 @@ def get_args():
             default=None,
             help="finicity customer_id"
             )
+    parser.add_argument(
+            "--transaction_id",
+            "-tid",
+            required=False,
+            default=None,
+            help="finicity transaction_id"
+            )
 
     return parser.parse_args()
 
@@ -66,13 +73,19 @@ def get_value(action):
         return generate_url(action, f_token, f_customer_id, f_body)
     elif action == "trnx_rprt":
         return trnx_rprt(action, f_token, f_customer_id, f_params, f_body)
+    elif action == "add_consumer":
+        return add_consumer(action, f_token, f_customer_id, f_body)
+    elif action == "customer_trnx_rprt":
+        return customer_trnx_rprt(action, f_token, f_customer_id, f_transaction_id)
+    elif action == "get_consumer_by_id":
+        return get_consumer_by_id(action, f_token, f_customer_id)
 
 
 def main(args):
     if len(args) < 2:
         usage()
 
-    global f_token, f_body, f_params, f_customer_id 
+    global f_token, f_body, f_params, f_customer_id, f_transaction_id
 
     args = get_args()
     f_action = args.action
@@ -80,6 +93,7 @@ def main(args):
     f_body = eval(args.body) if args.body else {}
     f_params = eval(args.params) if args.params else {}
     f_customer_id = args.customer_id
+    f_transaction_id = args.transaction_id
     return_value = get_value(f_action)
     print(return_value)
 

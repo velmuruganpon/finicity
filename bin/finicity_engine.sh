@@ -22,6 +22,12 @@ then
         echo -e "\tsh  finicity_engine.sh \"GENERATE-URL\" \"6007465953\""
 	echo "usage: TRANSACTION REPORT"
         echo -e "\tsh  finicity_engine.sh \"TRANSACTION-REPORT\" \"6007465953\""
+	echo "usage: ADD CONSUMER"
+	echo -e "\tsh  finicity_engine.sh \"ADD-CONSUMER\" \"6007465953\" \"{ 'firstName': 'Suzi','lastName': ' Builder','address': '434 W Ascension Way','city': 'Murray','state': 'UT','zip': '84123', 'phone': '6786786786','ssn' : '999606666', 'birthday' : { 'year' : 1995, 'month' : 7, 'dayOfMonth' : 7 }, 'email': 'finicity@test.com' }\""
+	echo "usage: GET CUSTOMER TRANSACTION REPORT"
+	echo -e "\tsh  finicity_engine.sh \"GET-CUSTOMER-TRANSACTION-REPORT\" \"6007465953\" \"sdy0k5kw188q-transactions\""
+	echo "usage: GET CONSUMER BY ID"
+	echo -e "\tsh  finicity_engine.sh \"GET-CONSUMER-BY-ID\" \"6007416155\""
 	exit 100
 fi
 
@@ -121,6 +127,42 @@ then
         fi
 
         echo "$report"
+elif [ "X${action}" == "XADD-CONSUMER" ]
+then
+        echo "python3 finicity_engine.py \"add_consumer\" -t \"${token}\" -id \"${obj}\" -b \"${obj1}\""
+        consumer_attr=`python3 finicity_engine.py "add_consumer" -t "${token}" -id "${obj}" -b "${obj1}"`
+
+        if [ $? -ne 0 ]
+        then
+                echo "consumer creation failed"
+                exit 102
+        fi
+
+        echo "$conusmer_attr"
+elif [ "X${action}" == "XGET-CUSTOMER-TRANSACTION-REPORT" ]
+then
+        echo "python3 finicity_engine.py \"customer_trnx_rprt\" -t \"${token}\" -id \"${obj}\" -tid \"${obj1}\""
+        customer_rprt=`python3 finicity_engine.py "customer_trnx_rprt" -t "${token}" -id "${obj}" -tid "${obj1}"`
+
+        if [ $? -ne 0 ]
+        then
+                echo "customer rprt creation failed"
+                exit 102
+        fi
+
+        echo "$customer_rprt"
+elif [ "X${action}" == "XGET-CONSUMER-BY-ID" ]
+then
+	echo "python3 finicity_engine.py \"get_consumer_by_id\" -t \"${token}\" -id \"${obj}\""
+        consumer=`python3 finicity_engine.py "get_consumer_by_id" -t "${token}" -id "${obj}"`
+
+        if [ $? -ne 0 ]
+        then
+                echo "get consumer by customer failed"
+                exit 102
+        fi
+
+        echo "$consumer"
 
 fi
 

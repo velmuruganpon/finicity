@@ -350,6 +350,67 @@ def generate_url(path:str, token:str, customer_id, data: Optional[dict]=None):
         f"{response.status_code}: {response.content}")
 
 
+def add_consumer(
+        path:str,
+        token,
+        customer_id,
+        data: Optional[dict]=None):
+    path = path_map[path] + "/" + customer_id + "/consumer"
+    print(path)
+    extra_header = { "Finicity-App-Token" : token }
+    cur_time = datetime.datetime.now()
+    cur_time1 = cur_time.strftime("%Y%m%d_%H%M%S")
+    file_name = f_log + cur_time1 + "_" + add_consumer_file
+
+    response = post(path, data, extra_header)
+    print(response)
+    print(response.json())
+    ssn = data.get('ssn','')
+    birthday = data.get('birthday','')
+    year = birthday.get('year') if birthday else ''
+    month = birthday.get('month') if birthday else ''
+    day_of_month =  birthday.get('dayOfMonth') if birthday else ''
+    if response.status_code == 200 or response.status_code == 201:
+        resp = response.json()
+        consumer_id = resp.get('id', '')
+        create_date = resp.get('createdDate','')
+        customer_id = resp.get('customerId','')
+        content_xs = [ 
+                token,
+                customer_id,
+                str(ssn),
+                str(year),
+                str(month),
+                str(day_of_month),
+                str(consumer_id),
+                str(create_date),
+                str(response.status_code),
+                str(response.content),
+                "SUCCESS"
+                ]
+        content = list_to_dq_str(content_xs)
+        write_log(file_name, content)
+        return consumer_id, create_date, customer_id
+    else:
+        content_xs = [
+                token,
+                customer_id,
+                str(ssn),
+                str(year),
+                str(month),
+                str(day_of_month),
+                "",
+                "",
+                str(response.status_code),
+                str(response.content),
+                "FAILED"
+                ]
+        content = list_to_dq_str(content_xs)
+        write_log(file_name, content)
+        raise Exception(f"consumer creation  issue "
+        f"{response.status_code}: {response.content}")
+
+
 
 def trnx_rprt(
         path:str,
@@ -366,9 +427,100 @@ def trnx_rprt(
 
     response = post_v1(path, params, data, extra_header)
     print(response.json())
-    if response.status_code == 200 or response.status_code == 201:
+    if response.status_code == 202:
         resp = response.json()
         return resp
     else:
         raise Exception(f"transactionreport  issue "
+        f"{response.status_code}: {response.content}")
+
+
+def customer_trnx_rprt(
+        path:str,
+        token:str,
+        customer_id:str,
+		report_id:str):
+    path = path_map[path] + "/" + customer_id + "/reports/" + report_id + "?purpose=31"
+    print(path)
+    extra_header = { "Finicity-App-Token" : token }
+    cur_time = datetime.datetime.now()
+    cur_time1 = cur_time.strftime("%Y%m%d_%H%M%S")
+    file_name = f_log + cur_time1 +"_"+  customer_trnx_rprt_file
+    # params={'customerId': customer_id, 'transactionId' : transaction_id }
+    params = {}
+    response = get(path, params, extra_header)
+    print(response.json())
+
+
+def get_consumer_by_id(
+        path:str,
+        token:str,
+        customer_id:str
+        ):
+    path = path_map[path] + "/" + str(customer_id) + "/consumer"
+    extra_header = { "Finicity-App-Token" : token }
+    cur_time = datetime.datetime.now()
+    cur_time1 = cur_time.strftime("%Y%m%d_%H%M%S")
+    file_name = f_log + cur_time1 +"_"+  get_consumer_by_id_file
+    params={}
+
+    response = get(path, params, extra_header)
+    if response.status_code == 200 or response.status_code == 201:
+        resp = response.json()
+        id1 = resp.get('id','')
+        firstname = resp.get('firstName','')
+        lastname = resp.get('lastName','')
+        customer_id = resp.get('customerId','')
+        address = resp.get('address','')
+        city = resp.get('city','')
+        state = resp.get('state','')
+        zip = resp.get('zip','')
+        phone = resp.get('phone','')
+        ssn = resp.get('ssn','')
+        birthday = resp.get('birthday','')
+        email = resp.get('email','')
+        created_date = resp.get('createdDate','')
+        suffix = resp.get('suffix','')
+        xs = [
+                id1,
+                firstname, lastname,
+                str(customer_id), address,
+                city, state,
+                zip, phone,
+                ssn, str(birthday),
+                email,str( created_date), 
+                suffix, 
+                str(response.status_code),
+                "",
+                "SUCCESS",
+                str(cur_time)
+                ]
+        #print(xs)
+        content = list_to_dq_str(xs)
+        write_log(file_name, content)
+        return id1
+    else:
+        xs = [
+                "",
+                "", 
+                "",
+                str(customer_id), 
+                "",
+                "", 
+                "",
+                "", 
+                "",
+                "", 
+                "",
+                "",
+                "",
+                "",
+                str(response.status_code),
+                str(response.content),
+                "FAILED",
+                str(cur_time)
+                ]
+        content = list_to_dq_str(xs)
+        write_log(file_name, content)
+        raise Exception(f"get consumer by id issue "
         f"{response.status_code}: {response.content}")
