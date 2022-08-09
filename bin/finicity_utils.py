@@ -524,3 +524,54 @@ def get_consumer_by_id(
         write_log(file_name, content)
         raise Exception(f"get consumer by id issue "
         f"{response.status_code}: {response.content}")
+
+
+def get_customer_transactions_all(
+        path:str, 
+        token:str, 
+        customer_id:str, 
+        params: Optional[dict]
+        ):
+    """
+    NON CRA
+    2 years data from today. By default
+    """
+    path = path_map[path] + "/" + customer_id + "/transactions"
+    extra_header = { "Finicity-App-Token" : token }
+    cur_time = datetime.datetime.now()
+    cur_time1 = cur_time.strftime("%Y%m%d_%H%M%S")
+    cur_time_epoch = cur_time.timestamp()
+    2years_ago_time = datetime.datetime.now() - datetime.timedelta(days=2*365)
+    2years_ago_epoch = 2years_ago_time.timestamp()
+    main_params = { 
+            'fromDate' : 2years_ago_epoch, 
+            'toDate' : cur_time_epoch,
+            'includePending' : True,
+            }
+    params.update(main_params)
+
+    file_name = f_log + cur_time1 +"_"+ get_customer_transactions_all
+
+    response = get(path, params, extra_header)
+    if response.status_code == 200 or response.status_code == 201:
+        resp = response.json()
+        limit = params.get('limit',1000)
+        start = 1
+        f_found = resp['found']
+        f_more_avaliable = resp['moreAvailable']
+        loop_cnt = int(f_found / int(limit)) + 1
+
+        for i in range(1,loop_cnt+1):
+            params1 = { 'start' : start, 'limit' : limit }
+            params.update(params1)
+            response1 = get(path, params, extra_header)
+            start = start + limit
+            if response1.status_code == 200 or response1.status_code == 201:
+                resp1 = response1.json()
+                transactions = resp1['transactions']
+                if transactions:
+                    print(transactions)
+            else:
+                 raise Exception(f"get customer transactions all issue "
+                         f"{response.status_code}: {response.content}")
+        return transactions
